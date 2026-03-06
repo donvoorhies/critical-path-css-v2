@@ -9,6 +9,11 @@ License: GPL-2.0+
 
 Complete page-speed toolkit: critical CSS, stylesheet/script deferral, Google Fonts optimisation, preload hints, and lazy GTM.
 
+== Documentation ==
+
+For full setup and configuration instructions, see the English user guide in this repository:
+https://github.com/donvoorhies/critical-path-css-v2/blob/master/USER_GUIDE.md
+
 == Description ==
 
 Version 2 is a full performance toolkit targeting every major PageSpeed Insights opportunity in one plugin:
