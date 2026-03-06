@@ -1,10 +1,10 @@
 <?php
 /**
  * Plugin Name: Critical Path CSS Generator
- * Plugin URI:  https://github.com/your-repo/critical-path-css
+ * Plugin URI:  https://github.com/donvoorhies/critical-path-css-v2
  * Description: Complete page-speed toolkit: critical-path CSS inlining, stylesheet deferral, Google Fonts optimisation, script deferral/async, preload hints, and GTM lazy-loading.
  * Version:     2.0.0
- * Author:      Your Name
+ * Author:      Don Voorhies
  * License:     GPL-2.0+
  * Text Domain: critical-path-css
  */

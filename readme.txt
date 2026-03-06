@@ -1,5 +1,5 @@
 === Critical Path CSS Generator ===
-Contributors: yourhandle
+Contributors: donvoorhies
 Tags: performance, css, critical css, render-blocking, fonts, google fonts, defer, preload, gtm
 Requires at least: 5.9
 Tested up to: 6.5
