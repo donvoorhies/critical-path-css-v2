@@ -3,7 +3,7 @@
  * Plugin Name: Critical Path CSS Generator
  * Plugin URI:  https://github.com/donvoorhies/critical-path-css-v2
  * Description: Complete page-speed toolkit: critical-path CSS inlining, stylesheet deferral, Google Fonts optimisation, script deferral/async, preload hints, and GTM lazy-loading.
- * Version:     2.0.0
+ * Version:     2.0.2
  * Author:      Don Voorhies
  * License:     GPL-2.0+
  * Text Domain: critical-path-css
@@ -11,7 +11,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'CPCS_VERSION',    '2.0.0' );
+define( 'CPCS_VERSION',    '2.0.2' );
 define( 'CPCS_DIR',        plugin_dir_path( __FILE__ ) );
 define( 'CPCS_URL',        plugin_dir_url( __FILE__ ) );
 define( 'CPCS_TABLE',      'cpcs_critical_css' );

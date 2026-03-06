@@ -4,7 +4,7 @@ Tags: performance, css, critical css, render-blocking, fonts, google fonts, defe
 Requires at least: 5.9
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 2.0.0
+Stable tag: 2.0.2
 License: GPL-2.0+
 
 Complete page-speed toolkit: critical CSS, stylesheet/script deferral, Google Fonts optimisation, preload hints, and lazy GTM.
@@ -50,6 +50,14 @@ Version 2 is a full performance toolkit targeting every major PageSpeed Insights
 4. Go to **Critical CSS** and generate/save critical CSS for your key pages
 
 == Changelog ==
+
+= 2.0.2 =
+* Maintenance: synchronized plugin header version, internal `CPCS_VERSION`, and readme stable tag
+* Docs: release history cleanup and consistency updates
+
+= 2.0.1 =
+* Maintenance: cleaned plugin metadata
+* Updated: Plugin URI, Author, and Contributors fields
 
 = 2.0.0 =
 * Added: Google Fonts optimiser with font-display and self-hosting
