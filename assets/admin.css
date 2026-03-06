@@ -1,0 +1,60 @@
+/* Critical Path CSS Generator v2 — Admin */
+
+.cpcs-wrap { max-width: 1200px; }
+.cpcs-wrap h1 { display:flex; align-items:center; gap:10px; font-size:24px; margin-bottom:4px; }
+.cpcs-version { font-size:12px; font-weight:400; color:#888; background:#f0f0f1; padding:2px 8px; border-radius:20px; }
+
+.cpcs-tabs { margin-top: 16px; }
+
+.cpcs-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin:20px 0; }
+@media(max-width:900px){ .cpcs-grid{ grid-template-columns:1fr; } }
+
+.cpcs-card {
+    background:#fff; border:1px solid #ddd; border-radius:8px;
+    padding:24px 28px; box-shadow:0 1px 3px rgba(0,0,0,.06);
+}
+.cpcs-card h2 { margin-top:0; font-size:15px; padding-bottom:10px; border-bottom:1px solid #f0f0f0; }
+.cpcs-full-width { grid-column:1/-1; }
+
+.cpcs-danger-card { border-color:#c00; }
+.cpcs-danger-card h2 { color:#c00; }
+
+.cpcs-form-table th { width:140px; padding:10px 10px 10px 0; font-weight:600; }
+.cpcs-form-table td { padding:8px 0; }
+
+.cpcs-spinner { float:none; margin:4px 8px 0; vertical-align:middle; }
+.button-hero  { height:40px; line-height:38px; padding:0 20px; font-size:14px; }
+
+.cpcs-toolbar { display:flex; gap:8px; margin-bottom:8px; }
+
+.cpcs-msg {
+    display:inline-block; padding:5px 12px; border-radius:4px;
+    font-size:13px; font-weight:500;
+}
+.cpcs-msg.success { background:#edfaed; color:#2a7a2a; border:1px solid #b5e3b5; }
+.cpcs-msg.error   { background:#fdecea; color:#a32020; border:1px solid #e8b3b0; }
+
+.cpcs-badge        { display:inline-block; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:600; margin-right:4px; }
+.cpcs-badge-active { background:#edfaed; color:#2a7a2a; border:1px solid #b5e3b5; }
+
+.cpcs-actions { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+
+/* Modal */
+#cpcs-modal-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,.55);
+    z-index:99999; display:flex; align-items:center; justify-content:center;
+}
+#cpcs-modal {
+    background:#fff; border-radius:8px; padding:28px 32px;
+    width:min(700px,92vw); max-height:85vh; overflow-y:auto;
+    position:relative; box-shadow:0 8px 32px rgba(0,0,0,.22);
+}
+#cpcs-modal h2 { margin-top:0; }
+.cpcs-modal-close {
+    position:absolute; top:12px; right:16px;
+    background:none; border:none; font-size:26px; cursor:pointer; color:#888; padding:0;
+}
+.cpcs-modal-close:hover{ color:#333; }
+#cpcs-modal label { display:block; font-weight:600; }
+#cpcs-modal input[type="url"],
+#cpcs-modal textarea { margin-top:4px; }
