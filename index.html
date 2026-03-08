@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Critical Path CSS — WordPress Performance Plugin</title>
+  <meta name="description" content="Critical Path CSS inlines above-the-fold styles, defers render-blocking resources, and self-hosts Google Fonts. No SaaS. No subscription. Just speed." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --amber: #f5a623; --amber-dim: #c47d0a;
+      --black: #080808; --off-white: #f0ede4; --grey: #777;
+      --display: 'Barlow Condensed', sans-serif;
+      --mono: 'IBM Plex Mono', monospace;
+      --sans: 'IBM Plex Sans', sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--black); color: var(--off-white); font-family: var(--sans); font-size: 17px; line-height: 1.65; overflow-x: hidden; }
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background:
+        repeating-linear-gradient(90deg, transparent, transparent 120px, rgba(245,166,35,0.03) 120px, rgba(245,166,35,0.03) 121px),
+        repeating-linear-gradient(0deg, transparent, transparent 120px, rgba(245,166,35,0.02) 120px, rgba(245,166,35,0.02) 121px);
+    }
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between;
+      background: rgba(8,8,8,0.88); backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(245,166,35,0.2);
+    }
+    .nav-logo { font-family: var(--display); font-size: 1.1rem; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; color: var(--amber); text-decoration: none; }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { font-family: var(--mono); font-size: 0.72rem; color: var(--grey); text-decoration: none; letter-spacing: 0.1em; text-transform: uppercase; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--off-white); }
+    .wrap { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 0 2rem; }
+    .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 8rem 2rem 4rem; position: relative; overflow: hidden; max-width: 1000px; margin: 0 auto; }
+    .hero::after { content: ''; position: absolute; right: -100px; top: 0; bottom: 0; width: 500px; background: repeating-linear-gradient(180deg, transparent, transparent 18px, rgba(245,166,35,0.04) 18px, rgba(245,166,35,0.04) 19px); pointer-events: none; }
+    .hero-eyebrow { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--amber); margin-bottom: 1.5rem; opacity: 0; animation: fadeUp 0.6s ease forwards 0.2s; }
+    .hero-title { font-family: var(--display); font-weight: 900; font-size: clamp(3.5rem, 11vw, 8.5rem); line-height: 0.9; letter-spacing: 0.01em; text-transform: uppercase; color: var(--off-white); opacity: 0; animation: fadeUp 0.7s ease forwards 0.35s; }
+    .hero-title .accent { color: var(--amber); }
+    .hero-metric { margin-top: 2.5rem; display: inline-flex; align-items: baseline; gap: 0.3rem; opacity: 0; animation: fadeUp 0.7s ease forwards 0.45s; flex-wrap: wrap; }
+    .metric-num { font-family: var(--display); font-weight: 900; font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 1; color: var(--amber); }
+    .metric-label { font-family: var(--mono); font-size: 0.68rem; color: var(--grey); letter-spacing: 0.08em; text-transform: uppercase; padding-bottom: 0.4rem; }
+    .metric-divider { width: 1px; height: 2.5rem; background: rgba(245,166,35,0.3); margin: 0 1.2rem; align-self: center; }
+    .hero-sub { margin-top: 2rem; font-size: 1.05rem; color: var(--grey); max-width: 480px; opacity: 0; animation: fadeUp 0.7s ease forwards 0.55s; }
+    .hero-sub em { color: var(--off-white); font-style: normal; }
+    .hero-actions { margin-top: 2.5rem; display: flex; gap: 1rem; flex-wrap: wrap; opacity: 0; animation: fadeUp 0.7s ease forwards 0.65s; }
+    .btn { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--mono); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; padding: 0.85rem 1.75rem; border-radius: 2px; transition: all 0.2s; border: none; cursor: pointer; }
+    .btn-primary { background: var(--amber); color: var(--black); }
+    .btn-primary:hover { background: var(--amber-dim); transform: translateY(-1px); }
+    .btn-ghost { background: transparent; color: var(--off-white); border: 1px solid rgba(240,237,228,0.2); }
+    .btn-ghost:hover { border-color: var(--off-white); transform: translateY(-1px); }
+    .hero-bg-text { position: absolute; right: -0.02em; bottom: -0.1em; font-family: var(--display); font-weight: 900; font-size: clamp(10rem, 22vw, 18rem); line-height: 1; text-transform: uppercase; color: rgba(245,166,35,0.04); user-select: none; pointer-events: none; }
+    .divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(245,166,35,0.35), transparent); }
+    .stats { padding: 3rem 2rem; max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); background: rgba(245,166,35,0.04); border: 1px solid rgba(245,166,35,0.1); }
+    .stat { padding: 2rem; border-right: 1px solid rgba(245,166,35,0.1); text-align: center; }
+    .stat:last-child { border-right: none; }
+    .stat-num { font-family: var(--display); font-weight: 900; font-size: 2.6rem; color: var(--amber); line-height: 1; display: block; }
+    .stat-label { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--grey); margin-top: 0.4rem; display: block; }
+    .features { padding: 5rem 2rem; max-width: 1000px; margin: 0 auto; }
+    .section-label { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--amber); margin-bottom: 3rem; display: flex; align-items: center; gap: 1rem; }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: rgba(245,166,35,0.2); }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5px; background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.1); }
+    .feature { background: var(--black); padding: 2rem; transition: background 0.2s; }
+    .feature:hover { background: rgba(245,166,35,0.04); }
+    .feature-tag { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--amber); margin-bottom: 0.6rem; display: block; }
+    .feature h3 { font-family: var(--display); font-weight: 700; font-size: 1.25rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--off-white); margin-bottom: 0.5rem; }
+    .feature p { font-size: 0.88rem; color: var(--grey); line-height: 1.6; }
+    .statement { padding: 5rem 2rem; max-width: 1000px; margin: 0 auto; }
+    .statement blockquote { font-family: var(--display); font-weight: 700; font-size: clamp(1.6rem, 4vw, 2.6rem); line-height: 1.15; letter-spacing: 0.03em; text-transform: uppercase; color: var(--off-white); border-left: 3px solid var(--amber); padding-left: 2rem; max-width: 680px; }
+    .statement blockquote strong { color: var(--amber); }
+    .faq { padding: 5rem 2rem; max-width: 1000px; margin: 0 auto; }
+    .faq-item { border-bottom: 1px solid rgba(240,237,228,0.07); padding: 1.75rem 0; }
+    .faq-item:first-of-type { border-top: 1px solid rgba(240,237,228,0.07); }
+    .faq-q { font-family: var(--mono); font-size: 0.88rem; font-weight: 600; color: var(--off-white); margin-bottom: 0.5rem; }
+    .faq-a { font-size: 0.92rem; color: var(--grey); max-width: 640px; }
+    .cta { padding: 6rem 2rem; text-align: center; max-width: 1000px; margin: 0 auto; }
+    .cta h2 { font-family: var(--display); font-weight: 900; font-size: clamp(2.5rem, 7vw, 5rem); letter-spacing: 0.03em; text-transform: uppercase; margin-bottom: 1rem; }
+    .cta p { font-family: var(--mono); font-size: 0.82rem; letter-spacing: 0.06em; color: var(--grey); margin-bottom: 2.5rem; }
+    footer { padding: 2.5rem 2rem; border-top: 1px solid rgba(240,237,228,0.06); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; max-width: 1000px; margin: 0 auto; }
+    .footer-left { font-family: var(--mono); font-size: 0.7rem; color: var(--grey); letter-spacing: 0.05em; }
+    .footer-left a { color: var(--grey); text-decoration: none; transition: color 0.2s; }
+    .footer-left a:hover { color: var(--off-white); }
+    .footer-suite { font-family: var(--mono); font-size: 0.68rem; color: var(--grey); letter-spacing: 0.08em; display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .footer-suite a { color: var(--grey); text-decoration: none; transition: color 0.2s; }
+    .footer-suite a:hover { color: var(--amber); }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+    @media (max-width: 600px) {
+      nav { padding: 1rem; } .nav-links { gap: 1.2rem; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .stat { border-right: none; border-bottom: 1px solid rgba(245,166,35,0.1); }
+      footer { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a class="nav-logo" href="#">Critical Path CSS</a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="https://github.com/donvoorhies/critical-path-css-v2" target="_blank" rel="noopener">GitHub</a></li>
+    </ul>
+  </nav>
+
+  <section class="hero">
+    <p class="hero-eyebrow">WordPress Performance Plugin</p>
+    <h1 class="hero-title">Critical<br><span class="accent">Path</span><br>CSS</h1>
+    <div class="hero-metric">
+      <span class="metric-num">521ms</span>
+      <span class="metric-label">Font chain<br>eliminated</span>
+      <span class="metric-divider"></span>
+      <span class="metric-num">0</span>
+      <span class="metric-label">Render-blocking<br>resources</span>
+    </div>
+    <p class="hero-sub">Inlines critical CSS. Defers the rest.<br><em>Self-hosts Google Fonts. Lazy-loads GTM. Gets out of the way.</em></p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="https://github.com/donvoorhies/critical-path-css-v2/releases/latest" target="_blank" rel="noopener">↓ Download latest</a>
+      <a class="btn btn-ghost" href="https://github.com/donvoorhies/critical-path-css-v2" target="_blank" rel="noopener">View on GitHub</a>
+    </div>
+    <div class="hero-bg-text" aria-hidden="true">FAST</div>
+  </section>
+
+  <div class="divider"></div>
+
+  <div class="stats reveal">
+    <div class="stat"><span class="stat-num">521ms</span><span class="stat-label">Font chain eliminated</span></div>
+    <div class="stat"><span class="stat-num">57KiB</span><span class="stat-label">GTM deferred from first paint</span></div>
+    <div class="stat"><span class="stat-num">0</span><span class="stat-label">External dependencies</span></div>
+    <div class="stat"><span class="stat-num">No</span><span class="stat-label">SaaS subscription required</span></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <section class="statement reveal">
+    <blockquote>
+      "Most performance plugins optimise metrics.<br>
+      <strong>This one eliminates the problems<br>that caused them."</strong>
+    </blockquote>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="features reveal" id="features">
+    <p class="section-label">What it does</p>
+    <div class="features-grid">
+      <div class="feature"><span class="feature-tag">Rendering</span><h3>Critical CSS inlining</h3><p>Generates and inlines above-the-fold CSS per page. The browser renders immediately — no waiting for external stylesheets.</p></div>
+      <div class="feature"><span class="feature-tag">Fonts</span><h3>Google Fonts self-hosting</h3><p>Downloads woff2 files to your own server and rewrites CSS references locally. Eliminates the fonts.gstatic.com DNS chain entirely.</p></div>
+      <div class="feature"><span class="feature-tag">Scripts</span><h3>Script deferral</h3><p>Defer or async any script by handle or URL fragment. Breaks the jQuery → hooks → i18n serial chain that blocks first paint.</p></div>
+      <div class="feature"><span class="feature-tag">Analytics</span><h3>GTM lazy loading</h3><p>Defers Google Tag Manager until first user interaction. 57 KiB removed from initial paint. Tracking still fires reliably.</p></div>
+      <div class="feature"><span class="feature-tag">LCP</span><h3>Preload hints</h3><p>Adds fetchpriority="high" preload for your LCP image. Auto-detects featured images on single posts and pages.</p></div>
+      <div class="feature"><span class="feature-tag">Compatibility</span><h3>Designed for the suite</h3><p>Built to run alongside OAP, CCCP, and Flak Jacket. Overlapping functions are intentionally excluded to avoid conflicts.</p></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="faq reveal" id="faq">
+    <p class="section-label">FAQ</p>
+    <div class="faq-item"><p class="faq-q">Does it require a subscription or external service?</p><p class="faq-a">No. Everything runs locally on your WordPress installation. No SaaS, no API keys, no phone-home.</p></div>
+    <div class="faq-item"><p class="faq-q">Can my host block the Google Fonts self-hosting?</p><p class="faq-a">Some shared hosts block outbound PHP requests to external domains. If self-hosting fails, the plugin falls back gracefully to CDN delivery with font-display: optional added.</p></div>
+    <div class="faq-item"><p class="faq-q">Will it conflict with caching plugins?</p><p class="faq-a">Clear your cache after generating critical CSS. The plugin writes static CSS to the database — caching plugins serve it correctly once the cache is refreshed.</p></div>
+    <div class="faq-item"><p class="faq-q">Does GTM lazy loading affect tracking accuracy?</p><p class="faq-a">No. The 5-second fallback ensures GTM always fires, even if the user never interacts. Pageviews and events are captured correctly.</p></div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="cta reveal">
+    <h2>Start going faster</h2>
+    <p>Free. Open source. GPL-2.0+. No strings attached.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <a class="btn btn-primary" href="https://github.com/donvoorhies/critical-path-css-v2/releases/latest" target="_blank" rel="noopener">↓ Download latest release</a>
+      <a class="btn btn-ghost" href="https://github.com/donvoorhies/critical-path-css-v2" target="_blank" rel="noopener">View source on GitHub</a>
+    </div>
+  </section>
+
+  <footer>
+    <p class="footer-left">Critical Path CSS &nbsp;·&nbsp; <a href="https://github.com/donvoorhies/critical-path-css-v2">github.com/donvoorhies/critical-path-css-v2</a> &nbsp;·&nbsp; by <a href="https://don.voorhies.dk">Don W. Voorhies</a></p>
+    <nav class="footer-suite">
+      <a href="https://donvoorhies.github.io/cccp/">CCCP</a>
+      <a href="https://donvoorhies.github.io/flak-jacket/">Flak Jacket</a>
+      <a href="https://github.com/donvoorhies/oap">OAP</a>
+    </nav>
+  </footer>
+
+  <script>
+    const observer = new IntersectionObserver(
+      entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+      { threshold: 0.1 }
+    );
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
