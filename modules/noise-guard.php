@@ -1,6 +1,9 @@
-<?php
-// modules/noise-guard.php  –  suppress known console-warning noise from third-party injectors
 
+<?php
+// modules/noise-guard.php  –  Suppress known console-warning noise from third-party injectors
+
+// -----------------------------------------------------------------------------
+// Disables WordPress emoji scripts/styles/filters to reduce unnecessary requests and console noise.
 add_action( 'init', 'cpcs_noise_guard_disable_wp_emoji' );
 function cpcs_noise_guard_disable_wp_emoji() {
     remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
@@ -21,6 +24,9 @@ function cpcs_noise_guard_disable_wp_emoji() {
     add_filter( 'option_use_smilies', '__return_zero' );
 }
 
+// -----------------------------------------------------------------------------
+// Forces jQuery and related scripts to always load from the local WordPress install,
+// preventing CDN or third-party sources that may cause console warnings or mismatches.
 add_filter( 'script_loader_src', 'cpcs_noise_guard_force_local_jquery_src', 9999, 2 );
 function cpcs_noise_guard_force_local_jquery_src( $src, $handle ) {
     if ( ! is_string( $src ) || $src === '' ) return $src;
@@ -43,10 +49,12 @@ function cpcs_noise_guard_force_local_jquery_src( $src, $handle ) {
     $host      = strtolower( (string) $parsed['host'] );
     $site_host = strtolower( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
 
+    // If already local, do nothing
     if ( $site_host !== '' && $host === $site_host ) {
         return $src;
     }
 
+    // Force to local WordPress jQuery if possible
     if ( isset( $map[ $handle ] ) ) {
         return $map[ $handle ];
     }
@@ -54,6 +62,8 @@ function cpcs_noise_guard_force_local_jquery_src( $src, $handle ) {
     return $src;
 }
 
+// -----------------------------------------------------------------------------
+// Dequeues known noisy or problematic assets/scripts on the frontend if optimizations are enabled.
 add_action( 'wp_enqueue_scripts', 'cpcs_noise_guard_dequeue_assets', 9999 );
 function cpcs_noise_guard_dequeue_assets() {
     if ( cpcs_should_bypass_frontend_optimizations() ) return;

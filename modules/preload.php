@@ -1,41 +1,49 @@
+
 <?php
 // modules/preload.php  –  <link rel="preload"> hints for LCP image + fonts
 
+// -----------------------------------------------------------------------------
+// Enables resource preloading for LCP images and fonts if the feature is enabled in settings.
 $cpcs_preload_enabled = cpcs_get_setting( 'preload_enabled', true );
 if ( $cpcs_preload_enabled ) {
     add_action( 'wp_head', 'cpcs_output_preload_hints', 1 );
 }
+
+// Outputs <link rel="preload"> tags for the LCP image and any fonts listed in settings.
+// Also logs debug information for each preload attempt.
 function cpcs_output_preload_hints() {
     if ( cpcs_should_bypass_frontend_optimizations() ) return;
 
-    // ── LCP image preload ─────────────────────────────────────────────────────
+    // -------------------------------------------------------------------------
+    // LCP image preload: emits a preload tag for the specified LCP image URL
     $lcp_image = trim( cpcs_get_setting( 'preload_lcp_image', '' ) );
     if ( $lcp_image && filter_var( $lcp_image, FILTER_VALIDATE_URL ) ) {
         if ( ! cpcs_preload_local_upload_url_exists( $lcp_image ) ) {
             cpcs_preload_debug_log( 'skip_lcp_preload_missing_file', [ 'url' => $lcp_image ] );
         } else {
-        $ext  = strtolower( pathinfo( parse_url( $lcp_image, PHP_URL_PATH ), PATHINFO_EXTENSION ) );
-        if ( $ext === 'jpg' || $ext === 'jpeg' ) {
-            $type = 'image/jpeg';
-        } elseif ( $ext === 'png' ) {
-            $type = 'image/png';
-        } elseif ( $ext === 'webp' ) {
-            $type = 'image/webp';
-        } elseif ( $ext === 'avif' ) {
-            $type = 'image/avif';
-        } elseif ( $ext === 'gif' ) {
-            $type = 'image/gif';
-        } elseif ( $ext === 'svg' ) {
-            $type = 'image/svg+xml';
-        } else {
-            $type = 'image/' . $ext;
-        }
-        echo '<link rel="preload" fetchpriority="high" as="image" href="' . esc_url( $lcp_image ) . '" type="' . esc_attr( $type ) . '">' . "\n";
+            $ext  = strtolower( pathinfo( parse_url( $lcp_image, PHP_URL_PATH ), PATHINFO_EXTENSION ) );
+            if ( $ext === 'jpg' || $ext === 'jpeg' ) {
+                $type = 'image/jpeg';
+            } elseif ( $ext === 'png' ) {
+                $type = 'image/png';
+            } elseif ( $ext === 'webp' ) {
+                $type = 'image/webp';
+            } elseif ( $ext === 'avif' ) {
+                $type = 'image/avif';
+            } elseif ( $ext === 'gif' ) {
+                $type = 'image/gif';
+            } elseif ( $ext === 'svg' ) {
+                $type = 'image/svg+xml';
+            } else {
+                $type = 'image/' . $ext;
+            }
+            echo '<link rel="preload" fetchpriority="high" as="image" href="' . esc_url( $lcp_image ) . '" type="' . esc_attr( $type ) . '">' . "\n";
             cpcs_preload_debug_log( 'emit_lcp_preload', [ 'url' => $lcp_image, 'type' => $type ] );
         }
     }
 
-    // ── Woff2 font preloads (from settings list) ──────────────────────────────
+    // -------------------------------------------------------------------------
+    // Woff2 font preloads: emits preload tags for each font URL in settings
     $font_list = array_filter( array_map( 'trim', explode( "\n", cpcs_get_setting( 'preload_fonts', '' ) ) ) );
     foreach ( $font_list as $url ) {
         $reason = '';

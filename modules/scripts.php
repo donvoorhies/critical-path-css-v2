@@ -1,19 +1,24 @@
 <?php
 // modules/scripts.php  –  JS defer / async / remove
 
+// -----------------------------------------------------------------------------
+// Modifies <script> tags to add async/defer/remove attributes based on settings.
+// Also sets up output buffering to filter problematic script hints.
 add_filter( 'script_loader_tag', 'cpcs_modify_script_tag', 10, 3 );
 add_action( 'template_redirect', 'cpcs_script_warning_filter_bootstrap', 0 );
 
+// Starts output buffering to filter problematic script hints on the frontend.
 function cpcs_script_warning_filter_bootstrap() {
     if ( cpcs_should_bypass_frontend_optimizations() ) return;
-
     ob_start( 'cpcs_filter_problematic_script_hints' );
 }
 
+// Modifies the <script> tag for each enqueued script based on plugin settings.
+// Handles async, defer, removal, and exclusion logic for scripts.
 function cpcs_modify_script_tag( $tag, $handle, $src ) {
     if ( cpcs_should_bypass_frontend_optimizations() ) return $tag;
 
-    // Never touch login page
+    // Never touch login page scripts
     if ( $GLOBALS['pagenow'] ?? '' === 'wp-login.php' ) return $tag;
 
     $scripts_enabled = cpcs_get_setting( 'scripts_enabled', true );
@@ -37,7 +42,7 @@ function cpcs_modify_script_tag( $tag, $handle, $src ) {
         if ( cpcs_handle_or_src_matches( $handle, $src, $ex ) ) return $tag;
     }
 
-    // Remove entirely
+    // Remove entirely if in remove list
     foreach ( $remove_list as $rm ) {
         if ( cpcs_handle_or_src_matches( $handle, $src, $rm ) ) return '';
     }

@@ -1,43 +1,48 @@
+
 <?php
 // modules/db.php  –  Database setup & helpers
 
-// ── Defaults ──────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
+// Returns the default plugin settings as an associative array.
+// These defaults are used for initial setup and when upgrading the plugin.
 function cpcs_defaults() {
     return [
-        // Critical CSS
-        'defer_stylesheets'    => true,
-        'minify_output'        => true,
-        'exclude_urls'         => '',
-        'viewport_width'       => 1300,
-        'viewport_height'      => 900,
-        // Fonts
-        'fonts_enabled'        => true,
-        'fonts_display'        => 'swap',
-        'fonts_self_host'      => false,
-        'preload_fonts'        => '',
-        // Scripts
-        'scripts_enabled'      => true,
-        'scripts_defer_all'    => false,
-        'scripts_async_list'   => '',
-        'scripts_defer_list'   => '',
-        'scripts_remove_list'  => '',
-        'scripts_exclude_list' => 'jquery',
-        // Preload
-        'preload_enabled'      => true,
-        'preload_lcp_image'    => '',
-        // GTM
-        'gtm_enabled'          => false,
-        'gtm_id'               => '',
-        'gtm_lazy'             => true,
-        // GA4
-        'ga4_enabled'          => false,
-        'ga4_id'               => '',
-        'ga4_lazy'             => true,
-        'ga4_delay_ms'         => 5000,
+        // Critical CSS settings
+        'defer_stylesheets'    => true,   // Defer non-critical stylesheets
+        'minify_output'        => true,   // Minify critical CSS output
+        'exclude_urls'         => '',     // URLs to exclude from optimization
+        'viewport_width'       => 1300,   // Default viewport width for critical CSS
+        'viewport_height'      => 900,    // Default viewport height for critical CSS
+        // Fonts settings
+        'fonts_enabled'        => true,   // Enable Google Fonts optimization
+        'fonts_display'        => 'swap', // Font display strategy
+        'fonts_self_host'      => false,  // Self-host Google Fonts
+        'preload_fonts'        => '',     // List of fonts to preload
+        // Scripts settings
+        'scripts_enabled'      => true,   // Enable script optimizations
+        'scripts_defer_all'    => false,  // Defer all scripts by default
+        'scripts_async_list'   => '',     // List of scripts to async
+        'scripts_defer_list'   => '',     // List of scripts to defer
+        'scripts_remove_list'  => '',     // List of scripts to remove
+        'scripts_exclude_list' => 'jquery', // Scripts to exclude from optimization
+        // Preload settings
+        'preload_enabled'      => true,   // Enable resource preloading
+        'preload_lcp_image'    => '',     // LCP image URL to preload
+        // Google Tag Manager (GTM) settings
+        'gtm_enabled'          => false,  // Enable GTM integration
+        'gtm_id'               => '',     // GTM container ID
+        'gtm_lazy'             => true,   // Lazy-load GTM
+        // Google Analytics 4 (GA4) settings
+        'ga4_enabled'          => false,  // Enable GA4 integration
+        'ga4_id'               => '',     // GA4 measurement ID
+        'ga4_lazy'             => true,   // Lazy-load GA4
+        'ga4_delay_ms'         => 5000,   // Delay (ms) before loading GA4
     ];
 }
 
-// ── Activation ────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
+// Plugin activation hook: creates the critical CSS database table and merges
+// default settings with any existing settings to preserve user configuration.
 register_activation_hook( CPCS_DIR . 'critical-path-css.php', 'cpcs_activate' );
 function cpcs_activate() {
     global $wpdb;
@@ -54,7 +59,7 @@ function cpcs_activate() {
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
     dbDelta( $sql );
 
-    // Merge over existing so upgrades don't lose saved values
+    // Merge defaults with any existing settings so upgrades don't overwrite user values
     $existing = get_option( 'cpcs_settings', [] );
     update_option( 'cpcs_settings', array_merge( cpcs_defaults(), $existing ) );
 }

@@ -1,20 +1,24 @@
+
 <?php
 // modules/fonts.php  –  Google Fonts optimiser
 
+// Only run this module if font optimization is enabled in settings
 if ( ! cpcs_get_setting( 'fonts_enabled', true ) ) return;
 
-// ── Rewrite Google Fonts URLs to add font-display ─────────────────────────────
+// -----------------------------------------------------------------------------
+// Rewrites Google Fonts URLs to add the font-display parameter, or swaps for a
+// local (self-hosted) version if enabled. Ensures optimal font loading behavior.
 add_filter( 'style_loader_src', 'cpcs_rewrite_google_fonts_url', 10, 2 );
 function cpcs_rewrite_google_fonts_url( $src, $handle ) {
     if ( ! cpcs_is_google_fonts_url( $src ) ) return $src;
 
-    // If self-hosting is on, swap the URL for a local one
+    // If self-hosting is enabled, swap the URL for a local one
     if ( cpcs_get_setting( 'fonts_self_host', false ) ) {
         $local = cpcs_get_or_download_font( $src, $handle );
         if ( $local ) return $local;
     }
 
-    // Otherwise just add display param
+    // Otherwise, just add or update the display parameter
     $display = cpcs_get_setting( 'fonts_display', 'swap' );
     if ( strpos( $src, 'display=' ) === false ) {
         $src = add_query_arg( 'display', $display, $src );
@@ -24,17 +28,21 @@ function cpcs_rewrite_google_fonts_url( $src, $handle ) {
     return $src;
 }
 
-// ── Preconnect hints ──────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
+// Adds preconnect hints for Google Fonts domains to speed up font loading.
+// Skips if self-hosting is enabled or if the page doesn't use Google Fonts.
 add_action( 'wp_head', 'cpcs_fonts_preconnect', 2 );
 function cpcs_fonts_preconnect() {
-    if ( cpcs_get_setting( 'fonts_self_host', false ) ) return; // not needed when self-hosting
+    if ( cpcs_get_setting( 'fonts_self_host', false ) ) return; // Not needed when self-hosting
     if ( ! cpcs_page_uses_google_fonts() ) return;
     echo '<link rel="preconnect" href="https://fonts.googleapis.com">' . "\n";
     echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
 }
 
-// ── Self-host: download Google Fonts locally ──────────────────────────────────
-
+// -----------------------------------------------------------------------------
+// Downloads and caches Google Fonts CSS locally for self-hosting, returning the
+// local URL. Uses a transient cache to avoid repeated downloads and verifies the
+// file exists before returning the cached URL.
 function cpcs_get_or_download_font( $remote_url, $handle ) {
     $upload   = wp_upload_dir();
     $font_dir = $upload['basedir'] . '/cpcs-fonts';

@@ -3,16 +3,21 @@
 // Defers GTM until first user interaction (scroll, click, keydown, mousemove, touchstart)
 // This eliminates the 57 KiB unused JS penalty on first paint.
 
+// -----------------------------------------------------------------------------
+// Only run this module if GTM is enabled in settings and a GTM ID is provided.
 if ( ! cpcs_get_setting( 'gtm_enabled', false ) ) return;
 
 $gtm_id = trim( cpcs_get_setting( 'gtm_id', '' ) );
 if ( ! $gtm_id ) return;
 
+// -----------------------------------------------------------------------------
+// If lazy-loading is enabled, injects GTM only after the first user interaction.
 if ( cpcs_get_setting( 'gtm_lazy', true ) ) {
-    // ── Lazy GTM: fires after first user interaction ───────────────────────────
+    // Add GTM loader to <head> and <noscript> fallback to body
     add_action( 'wp_head', 'cpcs_gtm_lazy_head', 1 );
     add_action( 'wp_body_open', 'cpcs_gtm_noscript', 1 );
 
+    // Outputs the GTM loader script, which waits for user interaction before loading GTM
     function cpcs_gtm_lazy_head() {
         $gtm_id = esc_js( trim( cpcs_get_setting( 'gtm_id', '' ) ) );
         ?>
@@ -22,6 +27,7 @@ if ( cpcs_get_setting( 'gtm_lazy', true ) ) {
     var gtmLoaded = false;
     var GTM_ID    = '<?php echo $gtm_id; ?>';
 
+    // Checks for privacy settings that block tracking
     function privacyBlocked(){
         try {
             return (
@@ -38,6 +44,7 @@ if ( cpcs_get_setting( 'gtm_lazy', true ) ) {
 
     if (!GTM_ID || privacyBlocked()) return;
 
+    // Loads the standard GTM snippet
     function loadGTM() {
         if (gtmLoaded) return;
         gtmLoaded = true;
@@ -55,7 +62,7 @@ if ( cpcs_get_setting( 'gtm_lazy', true ) ) {
         })(window,document,'script','dataLayer',GTM_ID);
     }
 
-    // Trigger on first meaningful interaction
+    // Trigger GTM load on first meaningful user interaction
     var events = ['scroll','click','keydown','mousemove','touchstart'];
     function onInteraction() {
         loadGTM();

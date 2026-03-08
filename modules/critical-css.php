@@ -1,11 +1,18 @@
-<?php
-// modules/critical-css.php  –  Inline critical CSS + defer full stylesheets
-
 global $cpcs_has_critical, $cpcs_deferred_tags;
 $cpcs_has_critical  = false;
 $cpcs_deferred_tags = [];
 
-// ── Inline critical CSS in <head> ─────────────────────────────────────────────
+<?php
+// modules/critical-css.php  –  Inline critical CSS + defer full stylesheets
+
+// Globals to track if critical CSS is present and to store deferred stylesheet tags
+global $cpcs_has_critical, $cpcs_deferred_tags;
+$cpcs_has_critical  = false;
+$cpcs_deferred_tags = [];
+
+// -----------------------------------------------------------------------------
+// Inlines critical CSS into the <head> of the page if available for the current URL.
+// Also sets a flag to enable stylesheet deferral if configured.
 add_action( 'wp_head', 'cpcs_inline_critical_css', 1 );
 function cpcs_inline_critical_css() {
     if ( cpcs_should_bypass_frontend_optimizations() || cpcs_is_excluded_url() ) return;
@@ -14,22 +21,27 @@ function cpcs_inline_critical_css() {
     $table = $wpdb->prefix . CPCS_TABLE;
     $url   = cpcs_current_url();
 
+    // Try to fetch critical CSS for the current page URL (with/without trailing slash)
     $row = $wpdb->get_row( $wpdb->prepare(
         "SELECT critical_css FROM {$table} WHERE page_url IN (%s,%s) LIMIT 1",
         trailingslashit( $url ), untrailingslashit( $url )
     ) );
     if ( ! $row ) return;
 
+    // Output the critical CSS in a <style> tag
     echo "\n<!-- Critical Path CSS v2 -->\n";
     echo '<style id="cpcs-critical">' . $row->critical_css . "</style>\n";
 
+    // If stylesheet deferral is enabled, set the global flag
     if ( cpcs_get_setting( 'defer_stylesheets', true ) ) {
         global $cpcs_has_critical;
         $cpcs_has_critical = true;
     }
 }
 
-// ── Strip stylesheets from <head> when critical CSS is active ─────────────────
+// -----------------------------------------------------------------------------
+// Removes stylesheets from <head> when critical CSS is active, deferring them for later output.
+// Stores the original <link> tags for later printing in the footer.
 add_filter( 'style_loader_tag', 'cpcs_maybe_defer_stylesheet', 10, 4 );
 function cpcs_maybe_defer_stylesheet( $tag, $handle, $href, $media ) {
     global $cpcs_has_critical;
@@ -41,7 +53,9 @@ function cpcs_maybe_defer_stylesheet( $tag, $handle, $href, $media ) {
     return '';
 }
 
-// ── Print deferred stylesheets in footer ──────────────────────────────────────
+// -----------------------------------------------------------------------------
+// Prints all deferred stylesheet <link> tags in the page footer, with a <noscript>
+// fallback for users with JavaScript disabled.
 add_action( 'wp_footer', 'cpcs_print_deferred_stylesheets', 999 );
 function cpcs_print_deferred_stylesheets() {
     if ( cpcs_should_bypass_frontend_optimizations() ) return;
@@ -52,7 +66,7 @@ function cpcs_print_deferred_stylesheets() {
     echo "\n<!-- Deferred stylesheets (Critical Path CSS) -->\n";
     foreach ( $cpcs_deferred_tags as $tag ) echo $tag;
 
-    // Noscript fallback
+    // Noscript fallback for users without JS
     echo '<noscript>';
     foreach ( $cpcs_deferred_tags as $tag ) echo $tag;
     echo "</noscript>\n";

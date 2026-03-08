@@ -1,24 +1,34 @@
+
 <?php
 // modules/admin.php  –  Admin menu, pages, assets
 
-// ── Menu ─────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
+// Registers the plugin's admin menu and settings submenu in the WordPress dashboard.
 add_action( 'admin_menu', 'cpcs_admin_menu' );
 function cpcs_admin_menu() {
     add_menu_page(
-        'Critical Path CSS', 'Critical CSS', 'manage_options',
-        'critical-path-css', 'cpcs_admin_page',
-        'dashicons-performance', 80
+        'Critical Path CSS',      // Page title
+        'Critical CSS',           // Menu title
+        'manage_options',         // Capability required
+        'critical-path-css',      // Menu slug
+        'cpcs_admin_page',        // Callback for main page
+        'dashicons-performance',  // Icon
+        80                       // Position
     );
     add_submenu_page(
-        'critical-path-css', 'Settings', 'Settings', 'manage_options',
-        'critical-path-css-settings', 'cpcs_settings_page'
+        'critical-path-css',      // Parent slug
+        'Settings', 'Settings',   // Page & menu title
+        'manage_options',         // Capability
+        'critical-path-css-settings', // Submenu slug
+        'cpcs_settings_page'      // Callback for settings page
     );
 }
 
-// ── Assets ───────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
+// Enqueues admin CSS/JS assets only on plugin admin pages, and localizes strings for JS.
 add_action( 'admin_enqueue_scripts', 'cpcs_admin_assets' );
 function cpcs_admin_assets( $hook ) {
-    if ( strpos( $hook, 'critical-path-css' ) === false ) return;
+    if ( strpos( $hook, 'critical-path-css' ) === false ) return; // Only load on plugin pages
     wp_enqueue_style(  'cpcs-admin', CPCS_URL . 'assets/admin.css', [], CPCS_VERSION );
     wp_enqueue_script( 'cpcs-admin', CPCS_URL . 'assets/admin.js', ['jquery'], CPCS_VERSION, true );
     wp_localize_script( 'cpcs-admin', 'CPCS', [
@@ -36,6 +46,10 @@ function cpcs_admin_assets( $hook ) {
     ] );
 }
 
+
+// -----------------------------------------------------------------------------
+// Checks if any preloaded fonts are still referencing Google Fonts (gstatic)
+// when self-hosting is enabled. Used to warn users about stale preloads.
 function cpcs_has_stale_gstatic_preloads( $settings ) {
     if ( empty( $settings['fonts_self_host'] ) ) return false;
 
@@ -50,6 +64,9 @@ function cpcs_has_stale_gstatic_preloads( $settings ) {
     return false;
 }
 
+// -----------------------------------------------------------------------------
+// Normalizes the list of font URLs to preload, removing duplicates and (optionally)
+// removing Google Fonts URLs if self-hosting is enabled. Returns the cleaned list.
 function cpcs_normalize_preload_fonts( $raw, $self_host_enabled, &$removed_gstatic = 0 ) {
     $removed_gstatic = 0;
     $lines           = array_filter( array_map( 'trim', explode( "\n", (string) $raw ) ) );
