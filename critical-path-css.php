@@ -6,7 +6,7 @@
  * Description: Complete page-speed toolkit: critical-path CSS inlining, stylesheet deferral, Google Fonts optimisation, script deferral/async, preload hints, and GTM lazy-loading.
  * Version:     2.0.2
  * Author:      Don Voorhies
- * License:     GPL-2.0+
+ * License:     GPL-3.0
  * Text Domain: critical-path-css
  *
  * Main plugin bootstrap file. Defines constants, utility functions, and loads all feature modules.
