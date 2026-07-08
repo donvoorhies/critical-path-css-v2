@@ -5,7 +5,7 @@ Requires at least: 5.9
 Tested up to: 6.5
 Requires PHP: 8.0
 Stable tag: 2.0.2
-License: GPL-2.0+
+License: GPL-3.0
 
 Complete page-speed toolkit: critical CSS, stylesheet/script deferral, Google Fonts optimisation, preload hints, and lazy GTM.
 
